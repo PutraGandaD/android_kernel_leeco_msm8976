@@ -454,7 +454,7 @@ int srs_trumedia_open(int port_id, int copp_idx, __s32 srs_tech_id,
 					sizeof(struct adm_cmd_set_pp_params_v5);
 		adm_params->payload_addr_lsw = lower_32_bits(
 						this_adm.outband_memmap.paddr);
-		adm_params->payload_addr_msw = populate_upper_32_bits(
+		adm_params->payload_addr_msw = msm_audio_populate_upper_32_bits(
 						this_adm.outband_memmap.paddr);
 		adm_params->mem_map_handle = atomic_read(&this_adm.
 					mem_map_handles[ADM_SRS_TRUMEDIA]);
@@ -1454,7 +1454,8 @@ static int adm_memory_map_regions(phys_addr_t *buf_add, uint32_t mempool_id,
 
 	for (i = 0; i < bufcnt; i++) {
 		mregions->shm_addr_lsw = lower_32_bits(buf_add[i]);
-		mregions->shm_addr_msw = populate_upper_32_bits(buf_add[i]);
+		mregions->shm_addr_msw =
+				msm_audio_populate_upper_32_bits(buf_add[i]);
 		mregions->mem_size_bytes = bufsz[i];
 		++mregions;
 	}
@@ -1612,7 +1613,7 @@ static void send_adm_custom_topology(void)
 	adm_top.hdr.token = 0;
 	adm_top.hdr.opcode = ADM_CMD_ADD_TOPOLOGIES;
 	adm_top.payload_addr_lsw = lower_32_bits(cal_block->cal_data.paddr);
-	adm_top.payload_addr_msw = populate_upper_32_bits(
+	adm_top.payload_addr_msw = msm_audio_populate_upper_32_bits(
 						cal_block->cal_data.paddr);
 	adm_top.mem_map_handle = cal_block->map_data.q6map_handle;
 	adm_top.payload_size = cal_block->cal_data.size;
@@ -1702,7 +1703,7 @@ static int send_adm_cal_block(int port_id, int copp_idx,
 			atomic_read(&this_adm.copp.id[port_idx][copp_idx]);
 	adm_params.hdr.opcode = ADM_CMD_SET_PP_PARAMS_V5;
 	adm_params.payload_addr_lsw = lower_32_bits(cal_block->cal_data.paddr);
-	adm_params.payload_addr_msw = populate_upper_32_bits(
+	adm_params.payload_addr_msw = msm_audio_populate_upper_32_bits(
 						cal_block->cal_data.paddr);
 	adm_params.mem_map_handle = cal_block->map_data.q6map_handle;
 	adm_params.payload_size = cal_block->cal_data.size;
@@ -3815,7 +3816,8 @@ int adm_get_source_tracking(int port_id, int copp_idx,
 	admp.data_payload_addr_lsw =
 		lower_32_bits(this_adm.sourceTrackingData.memmap.paddr);
 	admp.data_payload_addr_msw =
-		upper_32_bits(this_adm.sourceTrackingData.memmap.paddr);
+		msm_audio_populate_upper_32_bits(
+				this_adm.sourceTrackingData.memmap.paddr);
 	admp.mem_map_handle = atomic_read(&this_adm.mem_map_handles[
 					  ADM_MEM_MAP_INDEX_SOURCE_TRACKING]);
 	admp.module_id = VOICEPROC_MODULE_ID_GENERIC_TX;
