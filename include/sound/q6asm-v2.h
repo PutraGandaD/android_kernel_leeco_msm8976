@@ -49,6 +49,7 @@
 #define FORMAT_ALAC         0x0017
 #define FORMAT_VORBIS       0x0018
 #define FORMAT_APE          0x0019
+#define FORMAT_DTS          0x001c
 
 #define ENCDEC_SBCBITRATE   0x0001
 #define ENCDEC_IMMEDIATE_DECODE 0x0002
