@@ -432,19 +432,7 @@ static ssize_t uid_procstat_write(struct file *file,
 		return count;
 	}
 
-	memset(&uid_entry->io[UID_STATE_TOTAL_CURR], 0,
-		sizeof(struct io_stats));
-
-	read_lock(&tasklist_lock);
-	do_each_thread(temp, task) {
-		task_uid = from_kuid_munged(current_user_ns(), task_uid(task));
-		if (uid != task_uid)
-			continue;
-		add_uid_io_curr_stats(uid_entry, task);
-	} while_each_thread(temp, task);
-	read_unlock(&tasklist_lock);
-
-	update_io_stats_uid_locked(uid_entry);
+	update_io_stats_locked();
 
 	uid_entry->state = state;
 
