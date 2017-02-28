@@ -248,16 +248,15 @@ static u64 compute_write_bytes(struct task_struct *task)
 	return task->ioac.write_bytes - task->ioac.cancelled_write_bytes;
 }
 
-static void add_uid_io_stats(struct uid_entry *uid_entry,
-			struct task_struct *task, int slot)
+static void add_uid_io_curr_stats(struct uid_entry *uid_entry,
+			struct task_struct *task)
 {
 	struct io_stats *io_slot = &uid_entry->io[slot];
 
-	io_slot->read_bytes += task->ioac.read_bytes;
-	io_slot->write_bytes += compute_write_bytes(task);
-	io_slot->rchar += task->ioac.rchar;
-	io_slot->wchar += task->ioac.wchar;
-	io_slot->fsync += task->ioac.syscfs;
+	io_curr->read_bytes += task->ioac.read_bytes;
+	io_curr->write_bytes += compute_write_bytes(task);
+	io_curr->rchar += task->ioac.rchar;
+	io_curr->wchar += task->ioac.wchar;
 }
 
 static void compute_uid_io_bucket_stats(struct io_stats *io_bucket,
@@ -295,7 +294,10 @@ static void compute_uid_io_bucket_stats(struct io_stats *io_bucket,
 	io_last->wchar = io_curr->wchar;
 	io_last->fsync = io_curr->fsync;
 
-	memset(io_dead, 0, sizeof(struct io_stats));
+	io_last->read_bytes -= task->ioac.read_bytes;
+	io_last->write_bytes -= compute_write_bytes(task);
+	io_last->rchar -= task->ioac.rchar;
+	io_last->wchar -= task->ioac.wchar;
 }
 
 static void update_io_stats_all_locked(void)
