@@ -257,6 +257,7 @@ static void add_uid_io_curr_stats(struct uid_entry *uid_entry,
 	io_curr->write_bytes += compute_write_bytes(task);
 	io_curr->rchar += task->ioac.rchar;
 	io_curr->wchar += task->ioac.wchar;
+	io_curr->fsync += task->ioac.syscfs;
 }
 
 static void compute_uid_io_bucket_stats(struct io_stats *io_bucket,
@@ -298,6 +299,7 @@ static void compute_uid_io_bucket_stats(struct io_stats *io_bucket,
 	io_last->write_bytes -= compute_write_bytes(task);
 	io_last->rchar -= task->ioac.rchar;
 	io_last->wchar -= task->ioac.wchar;
+	io_last->fsync -= task->ioac.syscfs;
 }
 
 static void update_io_stats_all_locked(void)
@@ -323,10 +325,23 @@ static void update_io_stats_all_locked(void)
 	rcu_read_unlock();
 
 	hash_for_each(hash_table, bkt, uid_entry, hash) {
-		compute_uid_io_bucket_stats(&uid_entry->io[uid_entry->state],
-					&uid_entry->io[UID_STATE_TOTAL_CURR],
-					&uid_entry->io[UID_STATE_TOTAL_LAST],
-					&uid_entry->io[UID_STATE_DEAD_TASKS]);
+		io_bucket = &uid_entry->io[uid_entry->state];
+		io_curr = &uid_entry->io[UID_STATE_TOTAL_CURR];
+		io_last = &uid_entry->io[UID_STATE_TOTAL_LAST];
+
+		io_bucket->read_bytes +=
+			io_curr->read_bytes - io_last->read_bytes;
+		io_bucket->write_bytes +=
+			io_curr->write_bytes - io_last->write_bytes;
+		io_bucket->rchar += io_curr->rchar - io_last->rchar;
+		io_bucket->wchar += io_curr->wchar - io_last->wchar;
+		io_bucket->fsync += io_curr->fsync - io_last->fsync;
+
+		io_last->read_bytes = io_curr->read_bytes;
+		io_last->write_bytes = io_curr->write_bytes;
+		io_last->rchar = io_curr->rchar;
+		io_last->wchar = io_curr->wchar;
+		io_last->fsync = io_curr->fsync;
 	}
 }
 
