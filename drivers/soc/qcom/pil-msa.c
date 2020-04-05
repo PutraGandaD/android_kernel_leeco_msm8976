@@ -309,7 +309,6 @@ int __pil_mss_deinit_image(struct pil_desc *pil, bool err_path)
 	int ret = 0;
 	int timeout_us = 0;
 	s32 status;
-	u64 val = is_timeout_disabled() ? 0 : pbl_mba_boot_timeout_ms * 1000;
 
 	if (err_path) {
 		writel_relaxed(CMD_PILFAIL_NFY_MBA,
