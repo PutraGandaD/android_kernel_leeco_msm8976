@@ -53,7 +53,7 @@
 #define MSM89XX_VDD_SPKDRV_NAME "cdc-vdd-spkdrv"
 
 #define DEFAULT_MULTIPLIER 800
-#define DEFAULT_GAIN 9
+#define DEFAULT_GAIN 10
 #define DEFAULT_OFFSET 100
 
 extern const u8 msm8x16_wcd_reg_readable[MSM8X16_WCD_CACHE_SIZE];
@@ -80,10 +80,10 @@ enum wcd_curr_ref {
 };
 
 enum wcd_mbhc_imp_det_pin {
-	WCD_MBHC_DET_NONE = 0,
+	WCD_MBHC_DET_BOTH = 0,
 	WCD_MBHC_DET_HPHL,
 	WCD_MBHC_DET_HPHR,
-	WCD_MBHC_DET_BOTH,
+	WCD_MBHC_DET_NONE,
 };
 
 

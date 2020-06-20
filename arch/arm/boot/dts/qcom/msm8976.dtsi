@@ -2865,22 +2865,22 @@
 
 		cdc-vdd-buck-supply = <&eldo2_8976>;
 		qcom,cdc-vdd-buck-voltage = <1800000 1800000>;
-		qcom,cdc-vdd-buck-current = <650000>;
+		qcom,cdc-vdd-buck-current = <750000>;
 
 		cdc-buck-sido-supply = <&eldo2_8976>;
 		qcom,cdc-buck-sido-voltage = <1800000 1800000>;
-		qcom,cdc-buck-sido-current = <250000>;
+		qcom,cdc-buck-sido-current = <300000>;
 		cdc-vdd-tx-h-supply = <&pm8950_l5>;
 		qcom,cdc-vdd-tx-h-voltage = <1800000 1800000>;
-		qcom,cdc-vdd-tx-h-current = <25000>;
+		qcom,cdc-vdd-tx-h-current = <75000>;
 
 		cdc-vdd-rx-h-supply = <&pm8950_l5>;
 		qcom,cdc-vdd-rx-h-voltage = <1800000 1800000>;
-		qcom,cdc-vdd-rx-h-current = <25000>;
+		qcom,cdc-vdd-rx-h-current = <75000>;
 
 		cdc-vdd-px-supply = <&pm8950_l5>;
 		qcom,cdc-vdd-px-voltage = <1800000 1800000>;
-		qcom,cdc-vdd-px-current = <10000>;
+		qcom,cdc-vdd-px-current = <20000>;
 
 		qcom,cdc-static-supplies =
 			"cdc-vdd-buck",
@@ -2958,29 +2958,29 @@
 
 		cdc-vdda-cp-supply = <&pm8950_s4>;
 		qcom,cdc-vdda-cp-voltage = <2050000 2050000>;
-		qcom,cdc-vdda-cp-current = <500000>;
+		qcom,cdc-vdda-cp-current = <700000>;
 
 		cdc-vdda-rx-h-supply = <&pm8950_l5>;
 		qcom,cdc-vdda-rx-h-voltage = <1800000 1800000>;
-		qcom,cdc-vdda-rx-h-current = <5000>;
+		qcom,cdc-vdda-rx-h-current = <30000>;
 
 		cdc-vdda-tx-h-supply = <&pm8950_l5>;
 		qcom,cdc-vdda-tx-h-voltage = <1800000 1800000>;
-		qcom,cdc-vdda-tx-h-current = <5000>;
+		qcom,cdc-vdda-tx-h-current = <30000>;
 
 		cdc-vdd-px-supply = <&pm8950_l5>;
 		qcom,cdc-vdd-px-voltage = <1800000 1800000>;
-		qcom,cdc-vdd-px-current = <5000>;
+		qcom,cdc-vdd-px-current = <30000>;
 
 		cdc-vdd-pa-supply = <&pm8950_s4>;
 		qcom,cdc-vdd-pa-voltage = <2050000 2050000>;
-		qcom,cdc-vdd-pa-current = <260000>;
+		qcom,cdc-vdd-pa-current = <450000>;
 
 		cdc-vdd-mic-bias-supply = <&pm8950_l13>;
 		qcom,cdc-vdd-mic-bias-voltage = <3075000 3075000>;
-		qcom,cdc-vdd-mic-bias-current = <5000>;
+		qcom,cdc-vdd-mic-bias-current = <25000>;
 
-		qcom,cdc-mclk-clk-rate = <9600000>;
+		qcom,cdc-mclk-clk-rate = <12288000>;
 
 		qcom,cdc-static-supplies = "cdc-vdda-rx-h",
 					   "cdc-vdda-tx-h",
