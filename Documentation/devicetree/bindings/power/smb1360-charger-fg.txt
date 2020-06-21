@@ -191,7 +191,7 @@ Example:
 			qcom,fg-batt-capacity-mah = <4000>;
 			qcom,fg-cc-soc-coeff = <0x8009>;
 
-			qcom,fg-cutoff-voltage-mv = <3300>;
+			qcom,fg-cutoff-voltage-mv = <3200>;
 			qcom,fg-iterm-ma = <100>;
 			qcom,fg-ibatt-standby-ma = <200>;
 			qcom,fg-cc-to-cv-mv = <4180>;
