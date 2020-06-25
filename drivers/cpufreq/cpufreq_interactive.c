@@ -403,7 +403,7 @@ static void __cpufreq_interactive_timer(unsigned long data, bool is_notif)
 		&per_cpu(cpuinfo, data);
 	struct cpufreq_interactive_tunables *tunables =
 		pcpu->policy->governor_data;
-	unsigned int new_freq;
+	unsigned int new_freq = 0;
 	unsigned int loadadjfreq;
 	unsigned int index;
 	unsigned long flags;
