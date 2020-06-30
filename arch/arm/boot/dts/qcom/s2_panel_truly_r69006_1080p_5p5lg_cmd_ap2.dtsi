@@ -128,6 +128,9 @@
 		qcom,mdss-dsi-bl-max-level = <4095>;
 		qcom,mdss-dsi-reset-sequence = <1 5>, <0 5>, <1 5>;
 		qcom,mdss-dsi-post-init-delay = <5>;
+		qcom,panel-allow-phy-poweroff;
+                qcom,ulps-enabled;
+                qcom,suspend-ulps-enabled;
 	};
 };
 &ibb_regulator{
