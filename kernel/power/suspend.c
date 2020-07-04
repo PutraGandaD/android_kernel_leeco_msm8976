@@ -350,7 +350,7 @@ static int enter_state(suspend_state_t state)
 #ifdef CONFIG_PM_SYNC_BEFORE_SUSPEND
 	printk(KERN_INFO "PM: Syncing filesystems ... ");
 	sys_sync();
-	printk("done.\n");
+	pr_debug("done.\n");
 #endif
 
 	pr_debug("PM: Preparing system for %s sleep\n", pm_states[state].label);
