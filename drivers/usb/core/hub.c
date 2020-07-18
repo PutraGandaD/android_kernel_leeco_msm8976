@@ -442,7 +442,7 @@ static void set_port_led(
 			status);
 }
 
-#define	LED_CYCLE_PERIOD	((2*HZ)/3)
+#define	LED_CYCLE_PERIOD	67
 
 static void led_work (struct work_struct *work)
 {
