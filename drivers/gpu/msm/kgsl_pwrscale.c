@@ -214,6 +214,18 @@ static int _thermal_adjust(struct kgsl_pwrctrl *pwr, int level)
 	return level;
 }
 
+#ifdef DEVFREQ_FLAG_WAKEUP_MAXFREQ
+static inline bool _check_maxfreq(u32 flags)
+{
+	return (flags & DEVFREQ_FLAG_WAKEUP_MAXFREQ);
+}
+#else
+static inline bool _check_maxfreq(u32 flags)
+{
+	return false;
+}
+#endif
+
 /*
  * kgsl_devfreq_target - devfreq_dev_profile.target callback
  * @dev: see devfreq.h
@@ -227,7 +239,8 @@ int kgsl_devfreq_target(struct device *dev, unsigned long *freq, u32 flags)
 	struct kgsl_device *device = dev_get_drvdata(dev);
 	struct kgsl_pwrctrl *pwr;
 	struct kgsl_pwrlevel *pwr_level;
-	int level, i;
+	int level;
+	unsigned int i;
 	unsigned long cur_freq;
 
 	if (device == NULL)
@@ -238,7 +251,7 @@ int kgsl_devfreq_target(struct device *dev, unsigned long *freq, u32 flags)
 		return 0;
 
 	pwr = &device->pwrctrl;
-	if (flags & DEVFREQ_FLAG_WAKEUP_MAXFREQ) {
+	if (_check_maxfreq(flags)) {
 		/*
 		 * The GPU is about to get suspended,
 		 * but it needs to be at the max power level when waking up
@@ -255,7 +268,12 @@ int kgsl_devfreq_target(struct device *dev, unsigned long *freq, u32 flags)
 	/* If the governor recommends a new frequency, update it here */
 	if (*freq != cur_freq) {
 		level = pwr->max_pwrlevel;
-		for (i = pwr->min_pwrlevel; i >= pwr->max_pwrlevel; i--)
+		/*
+		 * Array index of pwrlevels[] should be within the permitted
+		 * power levels, i.e., from max_pwrlevel to min_pwrlevel.
+		 */
+		for (i = pwr->min_pwrlevel; (i >= pwr->max_pwrlevel
+					&& i <= pwr->min_pwrlevel); i--)
 			if (*freq <= pwr->pwrlevels[i].gpu_freq) {
 				if (pwr->thermal_cycle == CYCLE_ACTIVE)
 					level = _thermal_adjust(pwr, i);
@@ -265,6 +283,7 @@ int kgsl_devfreq_target(struct device *dev, unsigned long *freq, u32 flags)
 			}
 		if (level != pwr->active_pwrlevel)
 			kgsl_pwrctrl_pwrlevel_change(device, level);
+	}
 
 	*freq = kgsl_pwrctrl_active_freq(pwr);
 
