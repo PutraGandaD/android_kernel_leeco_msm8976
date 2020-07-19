@@ -1136,7 +1136,6 @@ static int adreno_of_get_pdata(struct platform_device *pdev)
 	struct kgsl_device_platform_data *pdata = NULL;
 	struct device_node *node;
 	int ret = -EINVAL;
-	unsigned int timeout;
 
 	if (of_property_read_string(pdev->dev.of_node, "label", &pdev->name)) {
 		KGSL_CORE_ERR("Unable to read 'label'\n");
@@ -1182,10 +1181,8 @@ static int adreno_of_get_pdata(struct platform_device *pdev)
 		pdata->pm_qos_wakeup_latency = 100;
 
 	if (of_property_read_u32(pdev->dev.of_node, "qcom,idle-timeout",
-		&timeout))
-		timeout = 64;
-
-	pdata->idle_timeout = msecs_to_jiffies(timeout);
+		&pdata->idle_timeout))
+		pdata->idle_timeout = 64;
 
 	pdata->strtstp_sleepwake = of_property_read_bool(pdev->dev.of_node,
 						"qcom,strtstp-sleepwake");
