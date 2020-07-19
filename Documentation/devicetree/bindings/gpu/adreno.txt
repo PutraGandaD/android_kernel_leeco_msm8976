@@ -136,8 +136,6 @@ Optional Properties:
 				<value plan>
 				value - Value of speed bin to choose the proper PowerLevel Plan.
 				plan  - Number for a spedd config Powerlevels.
-- qcom,popp-enable:
-				Boolean. Enables the POPP feature in the gpu kernel driver.
 
 - qcom,l2pc-cpu-mask: unsigned int
 				Disables L2PC on masked CPUs when any of Graphics
