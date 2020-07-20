@@ -192,7 +192,7 @@ SUBARCH := $(shell uname -m | sed -e s/i.86/x86/ -e s/x86_64/x86/ \
 # "make" in the configured kernel build directory always uses that.
 # Default value for CROSS_COMPILE is not to prefix executables
 # Note: Some architectures assign CROSS_COMPILE in their arch/*/Makefile
-ARCH		?= $(SUBARCH)
+ARCH		?= arm64
 CROSS_COMPILE	?= $(CONFIG_CROSS_COMPILE:"%"=%)
 
 # Architecture as present in compile.h
@@ -239,8 +239,9 @@ CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
 	  else if [ -x /bin/bash ]; then echo /bin/bash; \
 	  else echo sh; fi ; fi)
 
-HOSTCC       = gcc
-HOSTCXX      = g++
+CCACHE      := $(shell which ccache)
+HOSTCC       = $(CCACHE) gcc
+HOSTCXX      = $(CCACHE) g++
 HOSTCFLAGS   = -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer -std=gnu89
 HOSTCXXFLAGS = -O2
 
@@ -374,23 +375,22 @@ LINUXINCLUDE    := \
 
 KBUILD_CPPFLAGS := -D__KERNEL__
 
-#GCC 5.x.x
-KBUILD_CFLAGS += -fdiagnostics-color=always -fdiagnostics-show-option \
-		 -Wno-maybe-uninitialized -Wno-unused-variable -Wno-unused-function \
-           	 -Wno-unused-label -Wno-memset-transposed-args -Wno-bool-compare \
-                 -Wno-logical-not-parentheses -Wno-discarded-array-qualifiers \
-		 -Wno-array-bounds -Wno-error=incompatible-pointer-types \
-                 -Wno-incompatible-pointer-types -Wno-pointer-sign \
-                 -Wno-parentheses -Wno-nonnull -Wno-attributes -Wno-sizeof-pointer-memaccess
-#GCC 6.x.x
-KBUILD_CFLAGS += -Wno-misleading-indentation -Wno-shift-overflow 
-
 KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -fno-strict-aliasing -fno-common \
 		   -Werror-implicit-function-declaration \
 		   -Wno-format-security \
 		   -fno-delete-null-pointer-checks \
 		   -std=gnu89
+
+# Thanks gcc!
+KBUILD_CFLAGS   += -Wno-trigraphs -Wno-unused-label -Wno-array-bounds -Wno-memset-transposed-args \
+                   -Wno-unused-function -Wno-declaration-after-statement \
+                   -Wno-unused-variable -Wno-parentheses -Wno-maybe-uninitialized \
+                   -Wno-misleading-indentation -Wno-bool-compare -Wno-int-conversion \
+                   -Wno-discarded-qualifiers -Wno-tautological-compare -Wno-incompatible-pointer-types \
+		   -Wno-error=maybe-uninitialized -Wno-bool-compare -Wno-misleading-indentation \
+	           -Wno-format -Wno-logical-not-parentheses -Wno-parentheses \
+                   -fno-modulo-sched
 
 KBUILD_AFLAGS_KERNEL :=
 KBUILD_CFLAGS_KERNEL :=
@@ -594,12 +594,15 @@ KBUILD_CFLAGS	+= $(call cc-disable-warning,maybe-uninitialized,)
 KBUILD_CFLAGS   += $(call cc-disable-warning,format-truncation,)
 
 ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
-KBUILD_CFLAGS	+= -Os $(call cc-disable-warning,maybe-uninitialized,)
+KBUILD_CFLAGS	+= -Os
 else
-KBUILD_CFLAGS   += -O2 
+KBUILD_CFLAGS	+= -finline-functions -O2
 endif
 
 include $(srctree)/arch/$(SRCARCH)/Makefile
+
+# Tell gcc to never replace conditional load with a non-conditional one
+KBUILD_CFLAGS	+= $(call cc-option,--param=allow-store-data-races=0)
 
 ifdef CONFIG_READABLE_ASM
 # Disable optimizations that make assembler listings hard to read.
@@ -696,9 +699,6 @@ KBUILD_CFLAGS += $(call cc-disable-warning, pointer-sign)
 
 # disable invalid "can't wrap" optimizations for signed / pointers
 KBUILD_CFLAGS	+= $(call cc-option,-fno-strict-overflow)
-
-# conserve stack if available
-KBUILD_CFLAGS   += $(call cc-option,-fconserve-stack)
 
 # use the deterministic mode of AR if available
 KBUILD_ARFLAGS := $(call ar-option,D)
