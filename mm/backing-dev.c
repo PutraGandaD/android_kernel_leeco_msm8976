@@ -166,6 +166,8 @@ static ssize_t read_ahead_kb_store(struct device *dev,
 	if (ret < 0)
 		return ret;
 
+	read_ahead_kb = 128;
+
 	bdi->ra_pages = read_ahead_kb >> (PAGE_SHIFT - 10);
 
 	return count;
