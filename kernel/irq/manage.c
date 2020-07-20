@@ -72,7 +72,7 @@ void synchronize_irq(unsigned int irq)
 	 * We made sure that no hardirq handler is running. Now verify
 	 * that no threaded handlers are active.
 	 */
-	wait_event(desc->wait_for_threads, !atomic_read(&desc->threads_active));
+	wait_event_interruptible(desc->wait_for_threads, !atomic_read(&desc->threads_active));
 }
 EXPORT_SYMBOL(synchronize_irq);
 
