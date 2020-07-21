@@ -1565,7 +1565,7 @@ static void do_cluster_freq_ctrl(long temp)
 			if (!(msm_thermal_info.bootup_freq_control_mask
 				& BIT(_cpu)))
 				continue;
-			pr_info("Limiting CPU%d max frequency to %u. Temp:%ld\n"
+			pr_debug("Limiting CPU%d max frequency to %u. Temp:%ld\n"
 				, _cpu
 				, cluster_ptr->freq_table[freq_idx].frequency
 				, temp);
@@ -3341,7 +3341,7 @@ static void do_freq_control(long temp)
 	for_each_possible_cpu(cpu) {
 		if (!(msm_thermal_info.bootup_freq_control_mask & BIT(cpu)))
 			continue;
-		pr_info("Limiting CPU%d max frequency to %u. Temp:%ld\n",
+		pr_debug("Limiting CPU%d max frequency to %u. Temp:%ld\n",
 			cpu, max_freq, temp);
 		cpus[cpu].limited_max_freq = max_freq;
 		if (!SYNC_CORE(cpu))
