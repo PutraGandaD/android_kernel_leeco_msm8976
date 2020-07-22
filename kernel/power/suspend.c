@@ -373,8 +373,6 @@ static int enter_state(suspend_state_t state)
 	return error;
 }
 
-<<<<<<< HEAD
-=======
 static void pm_suspend_marker(char *annotation)
 {
 	struct timespec ts;
@@ -387,7 +385,6 @@ static void pm_suspend_marker(char *annotation)
 		tm.tm_hour, tm.tm_min, tm.tm_sec, ts.tv_nsec);
 }
 
->>>>>>> 1610d983a848... s2: Disable useless log spam in Nougat [1]
 /**
  * pm_suspend - Externally visible function for suspending the system.
  * @state: System sleep state to enter.
