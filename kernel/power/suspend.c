@@ -211,7 +211,6 @@ static int suspend_enter(suspend_state_t state, bool *wakeup)
 
 	error = disable_nonboot_cpus();
 	if (error || suspend_test(TEST_CPUS)) {
-		log_suspend_abort_reason("Disabling non-boot cpus failed");
 		goto Enable_cpus;
 	}
 
@@ -348,7 +347,7 @@ static int enter_state(suspend_state_t state)
 	if (state == PM_SUSPEND_FREEZE)
 		freeze_begin();
 
-	printk(KERN_INFO "PM: Syncing filesystems ... ");
+	pr_debug(KERN_INFO "PM: Syncing filesystems ... ");
 	sys_sync();
 	printk("done.\n");
 
@@ -380,7 +379,7 @@ static void pm_suspend_marker(char *annotation)
 
 	getnstimeofday(&ts);
 	rtc_time_to_tm(ts.tv_sec, &tm);
-	pr_info("PM: suspend %s %d-%02d-%02d %02d:%02d:%02d.%09lu UTC\n",
+	pr_debug("PM: suspend %s %d-%02d-%02d %02d:%02d:%02d.%09lu UTC\n",
 		annotation, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
 		tm.tm_hour, tm.tm_min, tm.tm_sec, ts.tv_nsec);
 }
