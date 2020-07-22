@@ -210,7 +210,6 @@ static int suspend_enter(suspend_state_t state, bool *wakeup)
 
 	error = disable_nonboot_cpus();
 	if (error || suspend_test(TEST_CPUS)) {
-		log_suspend_abort_reason("Disabling non-boot cpus failed");
 		goto Enable_cpus;
 	}
 
@@ -348,7 +347,7 @@ static int enter_state(suspend_state_t state)
 		freeze_begin();
 
 #ifdef CONFIG_PM_SYNC_BEFORE_SUSPEND
-	printk(KERN_INFO "PM: Syncing filesystems ... ");
+	pr_debug(KERN_INFO "PM: Syncing filesystems ... ");
 	sys_sync();
 	pr_debug("done.\n");
 #endif
@@ -374,6 +373,21 @@ static int enter_state(suspend_state_t state)
 	return error;
 }
 
+<<<<<<< HEAD
+=======
+static void pm_suspend_marker(char *annotation)
+{
+	struct timespec ts;
+	struct rtc_time tm;
+
+	getnstimeofday(&ts);
+	rtc_time_to_tm(ts.tv_sec, &tm);
+	pr_debug("PM: suspend %s %d-%02d-%02d %02d:%02d:%02d.%09lu UTC\n",
+		annotation, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
+		tm.tm_hour, tm.tm_min, tm.tm_sec, ts.tv_nsec);
+}
+
+>>>>>>> 1610d983a848... s2: Disable useless log spam in Nougat [1]
 /**
  * pm_suspend - Externally visible function for suspending the system.
  * @state: System sleep state to enter.
