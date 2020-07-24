@@ -3104,47 +3104,6 @@ void ipa_dec_client_disable_clks(void)
 	ipa_active_clients_unlock();
 }
 
-/**
-* ipa_inc_acquire_wakelock() - Increase active clients counter, and
-* acquire wakelock if necessary
-*
-* Return codes:
-* None
-*/
-void ipa_inc_acquire_wakelock(enum ipa_wakelock_ref_client ref_client)
-{
-	unsigned long flags;
-
-	spin_lock_irqsave(&ipa_ctx->wakelock_ref_cnt.spinlock, flags);
-	ipa_ctx->wakelock_ref_cnt.cnt |= (1 << ref_client);
-	if (ipa_ctx->wakelock_ref_cnt.cnt)
-		__pm_stay_awake(&ipa_ctx->w_lock);
-	IPADBG("active wakelock ref cnt = %d client enum %d\n",
-		ipa_ctx->wakelock_ref_cnt.cnt, ref_client);
-	spin_unlock_irqrestore(&ipa_ctx->wakelock_ref_cnt.spinlock, flags);
-}
-
-/**
- * ipa_dec_release_wakelock() - Decrease active clients counter
- *
- * In case if the ref count is 0, release the wakelock.
- *
- * Return codes:
- * None
- */
-void ipa_dec_release_wakelock(enum ipa_wakelock_ref_client ref_client)
-{
-	unsigned long flags;
-
-	spin_lock_irqsave(&ipa_ctx->wakelock_ref_cnt.spinlock, flags);
-	ipa_ctx->wakelock_ref_cnt.cnt &= ~(1 << ref_client);
-	IPADBG("active wakelock ref cnt = %d client enum %d\n",
-		ipa_ctx->wakelock_ref_cnt.cnt, ref_client);
-	if (ipa_ctx->wakelock_ref_cnt.cnt == 0)
-		__pm_relax(&ipa_ctx->w_lock);
-	spin_unlock_irqrestore(&ipa_ctx->wakelock_ref_cnt.spinlock, flags);
-}
-
 static int ipa_setup_bam_cfg(const struct ipa_plat_drv_res *res)
 {
 	void *ipa_bam_mmio;
@@ -3872,10 +3831,6 @@ static int ipa_init(const struct ipa_plat_drv_res *resource_p,
 		result = -ENOMEM;
 		goto fail_init_hw;
 	}
-
-	/* Create a wakeup source. */
-	wakeup_source_init(&ipa_ctx->w_lock, "IPA_WS");
-	spin_lock_init(&ipa_ctx->wakelock_ref_cnt.spinlock);
 
 	/* Initialize the SPS PM lock. */
 	mutex_init(&ipa_ctx->sps_pm.sps_pm_lock);

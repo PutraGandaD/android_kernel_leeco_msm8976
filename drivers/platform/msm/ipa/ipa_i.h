@@ -792,19 +792,6 @@ struct ipa_active_clients {
 	int cnt;
 };
 
-enum ipa_wakelock_ref_client {
-	IPA_WAKELOCK_REF_CLIENT_TX  = 0,
-	IPA_WAKELOCK_REF_CLIENT_LAN_RX = 1,
-	IPA_WAKELOCK_REF_CLIENT_WAN_RX = 2,
-	IPA_WAKELOCK_REF_CLIENT_SPS = 3,
-	IPA_WAKELOCK_REF_CLIENT_MAX
-};
-
-struct ipa_wakelock_ref_cnt {
-	spinlock_t spinlock;
-	u32 cnt;
-};
-
 struct ipa_tag_completion {
 	struct completion comp;
 	atomic_t cnt;
@@ -1178,8 +1165,6 @@ struct ipacm_client_info {
  * @ipa_num_pipes: The number of pipes used by IPA HW
  * @skip_uc_pipe_reset: Indicates whether pipe reset via uC needs to be avoided
  * @ipa_client_apps_wan_cons_agg_gro: RMNET_IOCTL_INGRESS_FORMAT_AGG_DATA
- * @w_lock: Indicates the wakeup source.
- * @wakelock_ref_cnt: Indicates the number of times wakelock is acquired
 
  * IPA context - holds all relevant info about IPA driver and its state
  */
@@ -1280,8 +1265,6 @@ struct ipa_context {
 	unsigned long peer_bam_dev;
 	u32 peer_bam_map_cnt;
 	u32 wdi_map_cnt;
-	struct wakeup_source w_lock;
-	struct ipa_wakelock_ref_cnt wakelock_ref_cnt;
 
 	/* RMNET_IOCTL_INGRESS_FORMAT_AGG_DATA */
 	bool ipa_client_apps_wan_cons_agg_gro;
@@ -1668,6 +1651,4 @@ void ipa_update_repl_threshold(enum ipa_client_type ipa_client);
 void ipa_flow_control(enum ipa_client_type ipa_client, bool enable,
 			uint32_t qmap_id);
 void ipa_sps_irq_control_all(bool enable);
-void ipa_inc_acquire_wakelock(enum ipa_wakelock_ref_client ref_client);
-void ipa_dec_release_wakelock(enum ipa_wakelock_ref_client ref_client);
 #endif /* _IPA_I_H_ */
