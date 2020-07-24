@@ -3828,36 +3828,6 @@ static struct clk_lookup msm_clocks_gcc_gfx[] = {
 	CLK_LIST(gcc_gtcu_ahb_clk),
 };
 
-static void get_gfx_version(struct platform_device *pdev, int *version)
-{
-	struct resource *res;
-	void __iomem *base;
-	u32 efuse;
-
-	*version = 0;
-
-	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "fuse");
-	if (!res) {
-		dev_err(&pdev->dev,
-			 "No version available. Defaulting to 0.\n");
-		return;
-	}
-
-	base = devm_ioremap(&pdev->dev, res->start, resource_size(res));
-	if (!base) {
-		dev_warn(&pdev->dev,
-			 "Unable to read fuse data. Defaulting to 0.\n");
-		return;
-	}
-
-	efuse = readl_relaxed(base);
-	devm_iounmap(&pdev->dev, base);
-
-	*version = (efuse >> 20) & 0x1;
-
-	dev_info(&pdev->dev, "GFX-Version: %d\n", *version);
-}
-
 extern int cpr2_gfx_regulator_get_corner_voltage(struct regulator *regulator,
 		int corner);
 extern int cpr2_gfx_regulator_set_corner_voltage(struct regulator *regulator,
