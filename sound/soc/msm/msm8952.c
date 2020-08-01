@@ -3001,7 +3001,7 @@ int msm_q6_enable_mi2s(struct snd_soc_codec *codec, bool enable)
 
 	if(enable == Smart_PA_I2S_enabled)
 	{
-		pr_info("%s: status not change, no need to config.\n", __func__);
+		pr_debug("%s: status not change, no need to config.\n", __func__);
 		return 0;
 	}
 
