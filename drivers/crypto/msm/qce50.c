@@ -41,7 +41,7 @@
 #define CRYPTO_CONFIG_RESET 0xE01EF
 #define QCE_MAX_NUM_DSCR    0x500
 #define QCE_SECTOR_SIZE	    0x200
-#define CE_CLK_100MHZ	100000000
+#define CE_CLK_100MHZ	160000000
 #define CE_CLK_DIV	1000000
 
 #define CRYPTO_CORE_MAJOR_VER_NUM 0x05
@@ -5160,8 +5160,8 @@ static int __qce_get_device_tree_data(struct platform_device *pdev,
 	if (of_property_read_u32((&pdev->dev)->of_node,
 				"qcom,ce-opp-freq",
 				&pce_dev->ce_opp_freq_hz)) {
-		pr_info("CE operating frequency is not defined, setting to default 100MHZ\n");
-		pce_dev->ce_opp_freq_hz = CE_CLK_100MHZ;
+		pr_info("CE operating frequency is not defined, setting to default 160MHZ\n");
+		pce_dev->ce_opp_freq_hz = CE_CLK_160MHZ;
 	}
 	pce_dev->ce_sps.dest_pipe_index	= 2 * pce_dev->ce_sps.pipe_pair_index;
 	pce_dev->ce_sps.src_pipe_index	= pce_dev->ce_sps.dest_pipe_index + 1;
