@@ -223,8 +223,7 @@ static void msm_restart_prepare(const char *cmd)
 	 * Kill download mode if master-kill switch is set
 	 */
 
-	set_dload_mode(download_mode &&
-			(in_panic || restart_mode == RESTART_DLOAD));
+	set_dload_mode(false);
 #endif
 
 	if (qpnp_pon_check_hard_reset_stored()) {
@@ -243,6 +242,16 @@ static void msm_restart_prepare(const char *cmd)
 	} else {
 		need_warm_reset = (get_dload_mode() ||
 				(cmd != NULL && cmd[0] != '\0'));
+	}
+
+	/* To preserve console-ramoops */
+	need_warm_reset = true;
+
+	/* Perform a regular reboot upon panic or unspecified command */
+	if (in_panic || !cmd) {
+		__raw_writel(0x77665501, restart_reason);
+		cmd = NULL;
+		in_panic = false;
 	}
 
 	/* Hard reset the PMIC unless memory contents must be maintained. */
