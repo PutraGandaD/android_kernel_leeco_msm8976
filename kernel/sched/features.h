@@ -37,8 +37,9 @@ SCHED_FEAT(CACHE_HOT_BUDDY, true)
 SCHED_FEAT(WAKEUP_PREEMPTION, true)
 
 /*
- * Use arch dependent cpu power functions
+ * Use arch dependent cpu capacity functions
  */
+SCHED_FEAT(ARCH_CAPACITY, false)
 SCHED_FEAT(ARCH_POWER, false)
 
 SCHED_FEAT(HRTICK, false)
