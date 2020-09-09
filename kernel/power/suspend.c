@@ -346,9 +346,11 @@ static int enter_state(suspend_state_t state)
 	if (state == PM_SUSPEND_FREEZE)
 		freeze_begin();
 
+#ifdef CONFIG_PM_SYNC_BEFORE_SUSPEND
 	pr_debug(KERN_INFO "PM: Syncing filesystems ... ");
 	sys_sync();
 	pr_debug("done.\n");
+#endif
 
 	pr_debug("PM: Preparing system for %s sleep\n", pm_states[state].label);
 	error = suspend_prepare(state);
