@@ -675,7 +675,7 @@ static ssize_t synaptics_rmi4_f01_productinfo_show(struct device *dev,
 {
 	struct synaptics_rmi4_data *rmi4_data = dev_get_drvdata(dev);
 
-	return snprintf(buf, PAGE_SIZE, "0x%02x 0x%02x\n",
+	return snprintf(buf, sizeof(buf), "0x%02x 0x%02x\n",
 			(rmi4_data->rmi4_mod_info.product_info[0]),
 			(rmi4_data->rmi4_mod_info.product_info[1]));
 }
@@ -4228,11 +4228,14 @@ static int synaptics_rmi4_probe(struct platform_device *pdev)
 
 	synaptics_rmi4_proc_init(rmi4_data->input_dev->dev.kobj.sd);
 
-	rmi4_data->rb_workqueue =
-			create_singlethread_workqueue("dsx_rebuild_workqueue");
+	rmi4_data->rb_workqueue = alloc_workqueue("dsx_rebuild_workqueue",
+			    WQ_HIGHPRI | WQ_UNBOUND | WQ_FREEZABLE |
+			    WQ_MEM_RECLAIM, 0);
 	INIT_DELAYED_WORK(&rmi4_data->rb_work, synaptics_rmi4_rebuild_work);
 
-	exp_data.workqueue = create_singlethread_workqueue("dsx_exp_workqueue");
+	exp_data.workqueue = alloc_workqueue("dsx_exp_workqueue",
+			    WQ_HIGHPRI | WQ_UNBOUND | WQ_FREEZABLE |
+			    WQ_MEM_RECLAIM, 0);
 	INIT_DELAYED_WORK(&exp_data.work, synaptics_rmi4_exp_fn_work);
 	exp_data.rmi4_data = rmi4_data;
 	exp_data.queue_work = true;
@@ -4247,8 +4250,9 @@ static int synaptics_rmi4_probe(struct platform_device *pdev)
 	}
 
 #ifdef FB_READY_RESET
-	rmi4_data->reset_workqueue =
-			create_singlethread_workqueue("dsx_reset_workqueue");
+	rmi4_data->reset_workqueue =alloc_workqueue("dsx_reset_workqueue",
+			    WQ_HIGHPRI | WQ_UNBOUND | WQ_FREEZABLE |
+			    WQ_MEM_RECLAIM, 0);
 	INIT_WORK(&rmi4_data->reset_work, synaptics_rmi4_reset_work);
 	queue_work(rmi4_data->reset_workqueue, &rmi4_data->reset_work);
 #endif
