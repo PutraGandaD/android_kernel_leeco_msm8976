@@ -41,6 +41,8 @@
 #include <linux/platform_device.h>
 #include <linux/proc_fs.h>
 #include <linux/regulator/consumer.h>
+#include <linux/kthread.h>
+#include <linux/sched/rt.h>
 #include "synaptics_dsx.h"
 #include "synaptics_dsx_core.h"
 #include "../../../fs/sysfs/sysfs.h"
@@ -595,8 +597,9 @@ struct synaptics_rmi4_exp_fn_data {
 	bool queue_work;
 	struct mutex mutex;
 	struct list_head list;
-	struct delayed_work work;
-	struct workqueue_struct *workqueue;
+	struct kthread_work touch_work;
+	struct kthread_worker touch_worker;
+	struct task_struct *touch_worker_thread;
 	struct synaptics_rmi4_data *rmi4_data;
 };
 
@@ -3727,7 +3730,7 @@ void synaptics_rmi4_sleep_enable(struct synaptics_rmi4_data *rmi4_data,
 	return;
 }
 
-static void synaptics_rmi4_exp_fn_work(struct work_struct *work)
+static void synaptics_rmi4_exp_fn_work(struct kthread_work *work)
 {
 	struct synaptics_rmi4_exp_fhandler *exp_fhandler;
 	struct synaptics_rmi4_exp_fhandler *exp_fhandler_temp;
@@ -3797,9 +3800,7 @@ exit:
 	mutex_unlock(&exp_data.mutex);
 
 	if (exp_data.queue_work) {
-		queue_delayed_work(exp_data.workqueue,
-				&exp_data.work,
-				msecs_to_jiffies(EXP_FN_WORK_DELAY_MS));
+		queue_kthread_work(&exp_data.touch_worker, &exp_data.touch_work);
 	}
 
 	return;
@@ -4066,7 +4067,9 @@ static int synaptics_rmi4_probe(struct platform_device *pdev)
 	struct synaptics_rmi4_data *rmi4_data;
 	const struct synaptics_dsx_hw_interface *hw_if;
 	const struct synaptics_dsx_board_data *bdata;
-	printk("Enter synaptics_rmi4_probe\n");
+	
+	struct sched_param param = { .sched_priority = MAX_RT_PRIO / 2 };
+
 	hw_if = pdev->dev.platform_data;
 	if (!hw_if) {
 		dev_err(&pdev->dev,
@@ -4233,15 +4236,19 @@ static int synaptics_rmi4_probe(struct platform_device *pdev)
 			    WQ_MEM_RECLAIM, 0);
 	INIT_DELAYED_WORK(&rmi4_data->rb_work, synaptics_rmi4_rebuild_work);
 
-	exp_data.workqueue = alloc_workqueue("dsx_exp_workqueue",
-			    WQ_HIGHPRI | WQ_UNBOUND | WQ_FREEZABLE |
-			    WQ_MEM_RECLAIM, 0);
-	INIT_DELAYED_WORK(&exp_data.work, synaptics_rmi4_exp_fn_work);
+	init_kthread_worker(&exp_data.touch_worker);
+	exp_data.touch_worker_thread = kthread_create(kthread_worker_fn, &exp_data.touch_worker, "touch_worker_thread");
+	if (IS_ERR(exp_data.touch_worker_thread)) {
+		pr_err("%s: Cannot init touch_worker kthread", __func__);
+		return -EFAULT;
+	}
+	sched_setscheduler(exp_data.touch_worker_thread, SCHED_FIFO, &param);
+	wake_up_process(exp_data.touch_worker_thread);
+	init_kthread_work(&exp_data.touch_work, synaptics_rmi4_exp_fn_work);
+
 	exp_data.rmi4_data = rmi4_data;
 	exp_data.queue_work = true;
-	queue_delayed_work(exp_data.workqueue,
-			&exp_data.work,
-			0);
+	queue_kthread_work(&exp_data.touch_worker, &exp_data.touch_work);
 	INIT_DELAYED_WORK(&rmi4_data->synaptics_pm_work, synaptics_ts_pm_worker);
 	rmi4_data->synaptics_pm_wq = create_singlethread_workqueue("synaptics_pm_wq");
 	if (!rmi4_data->synaptics_pm_wq) {
@@ -4343,10 +4350,6 @@ static int synaptics_rmi4_remove(struct platform_device *pdev)
 	flush_workqueue(rmi4_data->reset_workqueue);
 	destroy_workqueue(rmi4_data->reset_workqueue);
 #endif
-
-	cancel_delayed_work_sync(&exp_data.work);
-	flush_workqueue(exp_data.workqueue);
-	destroy_workqueue(exp_data.workqueue);
 
 	cancel_delayed_work_sync(&rmi4_data->rb_work);
 	flush_workqueue(rmi4_data->rb_workqueue);
