@@ -1062,7 +1062,6 @@ int phy_driver_register(struct phy_driver *new_driver)
 	new_driver->driver.bus = &mdio_bus_type;
 	new_driver->driver.probe = phy_probe;
 	new_driver->driver.remove = phy_remove;
-	new_driver->driver.probe_type = PROBE_FORCE_SYNCHRONOUS;
 
 	retval = driver_register(&new_driver->driver);
 
