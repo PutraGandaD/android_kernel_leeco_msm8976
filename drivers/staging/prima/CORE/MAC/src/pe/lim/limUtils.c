@@ -4764,9 +4764,8 @@ limEnableHtOBSSProtection(tpAniSirGlobal pMac, tANI_U8 enable,
     //overlapping protection configuration check.
     if(overlap)
     {
-        //overlapping protection configuration check.
-    } 
-    else 
+    }
+    else
     {
         //normal protection config check
         if((psessionEntry->limSystemRole == eLIM_AP_ROLE) && !psessionEntry->cfgProtection.obss) 

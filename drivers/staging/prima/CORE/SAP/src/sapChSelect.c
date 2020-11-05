@@ -1441,6 +1441,7 @@ void sapComputeSpectWeight( tSapChSelSpectInfo* pSpectInfoParams,
     v_U8_t chn_num = 0;
     v_U8_t channel_id = 0;
 
+    tSapSpectChInfo *pExtSpectCh = NULL;
     tCsrScanResultInfo *pScanResult;
     tSapSpectChInfo *pSpectCh   = pSpectInfoParams->pSpectCh;
     v_U32_t operatingBand;
