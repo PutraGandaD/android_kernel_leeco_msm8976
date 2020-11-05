@@ -380,17 +380,6 @@ KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -Werror-implicit-function-declaration \
 		   -Wno-format-security \
 		   -fno-delete-null-pointer-checks \
-		   -fno-diagnostics-show-caret \
-		   -fno-code-hoisting \
-		   -fno-fp-int-builtin-inexact \
-		   -fno-ipa-bit-cp \
-		   -fno-ipa-icf-variables \
-		   -fno-ipa-vrp \
-		   -fno-printf-return-value \
-		   -fno-shrink-wrap-separate \
-		   -fno-store-merging \
-		   -fno-peel-loops \
-		   -fno-split-loops \
 		   -std=gnu89
 
 # Thanks gcc!
