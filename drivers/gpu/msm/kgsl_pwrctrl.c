@@ -786,6 +786,7 @@ static ssize_t kgsl_pwrctrl_gpuclk_show(struct device *dev,
 				    struct device_attribute *attr,
 				    char *buf)
 {
+	unsigned long freq;
 	struct kgsl_device *device = kgsl_device_from_dev(dev);
 	struct kgsl_pwrctrl *pwr;
 	if (device == NULL)
