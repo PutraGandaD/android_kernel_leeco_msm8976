@@ -4373,20 +4373,9 @@ static irqreturn_t fg_batt_missing_irq_handler(int irq, void *_chip)
 		clear_cycle_counter(chip);
 		mutex_unlock(&chip->cyc_ctr.lock);
 	} else {
-<<<<<<< HEAD
 		if (!chip->use_otp_profile)
 			fg_handle_battery_insertion(chip);
 		else
-=======
-		if (!chip->use_otp_profile) {
-			INIT_COMPLETION(chip->batt_id_avail);
-			schedule_work(&chip->batt_profile_init);
-			cancel_delayed_work(&chip->update_sram_data);
-			queue_delayed_work(system_power_efficient_wq,
-				&chip->update_sram_data,
-				msecs_to_jiffies(0));
-		} else {
->>>>>>> 7496bbdbd52... power: qpnp-fg: queue work on system_power_efficient_wq
 			chip->battery_missing = false;
 	}
 
