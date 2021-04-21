@@ -3705,8 +3705,6 @@ static wpt_status dxeTXCompFrame
 
          if(wpalIsArpPkt(currentCtrlBlk->xfrFrame))
          {
-             HDXE_MSG(eWLAN_MODULE_DAL_DATA, eWLAN_PAL_TRACE_LEVEL_ERROR,
-                      "%s :ARP packet DMA-ed ", __func__);
              wpalUpdateTXArpFWdeliveredStats();
          }
 
