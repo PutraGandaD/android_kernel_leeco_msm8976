@@ -460,41 +460,6 @@ int core_get_low_power_segments(
 {
 	struct avcs_cmd_get_low_power_segments_info lp_ocm_cmd;
 	int ret = 0;
-	int i = 0;
-	int cmd_size = 0;
-
-	cmd_size = sizeof(struct avs_cmd_shared_mem_map_regions)
-			+ sizeof(struct avs_shared_map_region_payload)
-			* bufcnt;
-
-	mmap_region_cmd = kzalloc(cmd_size, GFP_KERNEL);
-	if (mmap_region_cmd == NULL)
-		return -ENOMEM;
-
-	mmap_regions = (struct avs_cmd_shared_mem_map_regions *)mmap_region_cmd;
-	mmap_regions->hdr.hdr_field = APR_HDR_FIELD(APR_MSG_TYPE_SEQ_CMD,
-						APR_HDR_LEN(APR_HDR_SIZE),
-								APR_PKT_VER);
-	mmap_regions->hdr.pkt_size = cmd_size;
-	mmap_regions->hdr.src_port = 0;
-	mmap_regions->hdr.dest_port = 0;
-	mmap_regions->hdr.token = 0;
-	mmap_regions->hdr.opcode = AVCS_CMD_SHARED_MEM_MAP_REGIONS;
-	mmap_regions->mem_pool_id = ADSP_MEMORY_MAP_SHMEM8_4K_POOL & 0x00ff;
-	mmap_regions->num_regions = bufcnt & 0x00ff;
-	mmap_regions->property_flag = 0x00;
-
-	payload = ((u8 *) mmap_region_cmd +
-				sizeof(struct avs_cmd_shared_mem_map_regions));
-	mregions = (struct avs_shared_map_region_payload *)payload;
-
-	for (i = 0; i < bufcnt; i++) {
-		mregions->shm_addr_lsw = lower_32_bits(buf_add[i]);
-		mregions->shm_addr_msw =
-				msm_audio_populate_upper_32_bits(buf_add[i]);
-		mregions->mem_size_bytes = bufsz[i];
-		++mregions;
-	}
 
 	pr_debug("%s:", __func__);
 
@@ -553,25 +518,7 @@ bool q6core_is_adsp_ready(void)
 	hdr.pkt_size = APR_PKT_SIZE(APR_HDR_SIZE, 0);
 	hdr.opcode = AVCS_CMD_ADSP_EVENT_GET_STATE;
 
-	reg_top.hdr.hdr_field = APR_HDR_FIELD(APR_MSG_TYPE_SEQ_CMD,
-		APR_HDR_LEN(APR_HDR_SIZE), APR_PKT_VER);
-	reg_top.hdr.pkt_size = sizeof(reg_top);
-	reg_top.hdr.src_svc = APR_SVC_ADSP_CORE;
-	reg_top.hdr.src_domain = APR_DOMAIN_APPS;
-	reg_top.hdr.src_port = 0;
-	reg_top.hdr.dest_svc = APR_SVC_ADSP_CORE;
-	reg_top.hdr.dest_domain = APR_DOMAIN_ADSP;
-	reg_top.hdr.dest_port = 0;
-	reg_top.hdr.token = 0;
-	reg_top.hdr.opcode = AVCS_CMD_REGISTER_TOPOLOGIES;
-	reg_top.payload_addr_lsw =
-		lower_32_bits(cal_block->cal_data.paddr);
-	reg_top.payload_addr_msw =
-		msm_audio_populate_upper_32_bits(cal_block->cal_data.paddr);
-	reg_top.mem_map_handle = cal_block->map_data.q6map_handle;
-	reg_top.payload_size = cal_block->cal_data.size;
-
-	q6core_lcl.adsp_status = 0;
+	ocm_core_open();
 	q6core_lcl.bus_bw_resp_received = 0;
 	rc = apr_send_pkt(q6core_lcl.core_handle_q, (uint32_t *)&hdr);
 	if (rc < 0) {
