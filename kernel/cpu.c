@@ -542,8 +542,6 @@ int disable_nonboot_cpus(void)
 	 */
 	cpu_hotplug_disabled++;
 
-		pr_debug(KERN_ERR "Non-boot CPUs are not disabled\n");
-	}
 	cpu_maps_update_done();
 	return error;
 }
