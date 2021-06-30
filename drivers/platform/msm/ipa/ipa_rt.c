@@ -51,6 +51,7 @@ int __ipa_generate_rt_hw_rule_v2(enum ipa_ip_type ip,
 	u32 tmp[IPA_RT_FLT_HW_RULE_BUF_SIZE/4];
 	u8 *start;
 	int pipe_idx;
+	struct ipa_hdr_entry *hdr_entry;
 
 	if (buf == NULL) {
 		memset(tmp, 0, (IPA_RT_FLT_HW_RULE_BUF_SIZE/4) * sizeof(u32));
@@ -74,6 +75,16 @@ int __ipa_generate_rt_hw_rule_v2(enum ipa_ip_type ip,
 	}
 	rule_hdr->u.hdr.pipe_dest_idx = pipe_idx;
 	rule_hdr->u.hdr.system = !ipa_ctx->hdr_tbl_lcl;
+	/* Adding check to confirm still
+	 * header entry present in header table or not
+	 */
+	if (entry->hdr) {
+		hdr_entry = ipa_id_find(entry->rule.hdr_hdl);
+		if (!hdr_entry || hdr_entry->cookie != IPA_HDR_COOKIE) {
+			IPAERR("Header entry already deleted\n");
+			return -EPERM;
+		}
+	}
 	if (entry->hdr) {
 		if (entry->hdr->cookie == IPA_HDR_COOKIE) {
 			rule_hdr->u.hdr.hdr_offset =
@@ -1041,13 +1052,12 @@ static int __ipa_add_rt_rule(enum ipa_ip_type ip, const char *name,
 		goto error;
 	}
 	/*
-	 * do not allow any rules to be added at end of the "default" routing
-	 * tables
+	 * do not allow any rule to be added at "default" routing
+	 * table
 	 */
 	if (!strncmp(tbl->name, IPA_DFLT_RT_TBL_NAME, IPA_RESOURCE_NAME_MAX) &&
-	    (tbl->rule_cnt > 0) && (at_rear != 0)) {
-		IPAERR("cannot add rule at end of tbl rule_cnt=%d at_rear=%d\n",
-		       tbl->rule_cnt, at_rear);
+	    (tbl->rule_cnt > 0)) {
+		IPAERR("cannot add rules to default rt table\n");
 		goto error;
 	}
 
