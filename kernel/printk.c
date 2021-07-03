@@ -574,7 +574,7 @@ static ssize_t devkmsg_writev(struct kiocb *iocb, const struct iovec *iv,
 			endp++;
 			len -= endp - line;
 			line = endp;
-			if (strstr(line, "init"))
+			 if (strstr(line, "init") || strstr(line, "logd"))
 				goto out;
 		}
 	}
